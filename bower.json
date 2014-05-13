@@ -1,0 +1,30 @@
+{
+  "name": "JIRALite",
+  "version": "0.1.0",
+  "description": "An easy way to log time",
+  "keywords": [
+    "JIRA"
+  ],
+  "homepage": "https://github.com/mbockus/JIRALite",
+  "bugs": "https://github.com/mbockus/JIRALite/issues",
+  "author": {
+    "name": "Mike Bockus",
+    "email": "",
+    "url": "https://github.com/mbockus"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mbockus/JIRALite.git"
+  },
+  "licenses": [
+    {
+      "type": "MIT"
+    }
+  ],
+  "dependencies": {
+    "bootstrap": "3.1.1",
+    "angular-animate": "^1.3.0-beta.8",
+    "angular-route": "^1.3.0-beta.8",
+    "angular": "^1.3.0-beta.8"
+  }
+}

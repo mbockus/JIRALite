@@ -10,13 +10,7 @@ angular.module('mbockus.Jiralite', ['ngAnimate', 'ngRoute'])
 
     $routeProvider
       .when('/', {
-        templateUrl: 'views/home.html'
-      })
-      .when('/features', {
-        templateUrl: 'views/features.html'
-      })
-      .when('/contact', {
-        templateUrl: 'views/contact.html'
+        templateUrl: 'views/logwork.html'
       })
       .otherwise({
         redirectTo: '/'

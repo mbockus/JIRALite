@@ -1,15 +1,26 @@
-/*global bootbox*/
+/*global _,$,bootbox,toastr*/
 'use strict';
+var issueStoreReplacer = function(key, value) {
+    if (key==='time'||key==='workDesc') {
+        return undefined;
+    }
+    else return value;
+};
 
 angular.module('mbockus.Jiralite')
 
-    .controller('JiraLiteCtrl', function JiraLiteCtrl($scope, $location, $routeParams, $filter, jiraLiteStorage, jiraLiteServer) {
+    .controller('JiraLiteCtrl', function JiraLiteCtrl($scope, $location, $routeParams, $filter, $http, jiraLiteStorage) {
 
         var issues = $scope.issues = jiraLiteStorage.get();
 
-        $scope.newIssue = '';
-        $scope.newIssueDesc = '';
-        $scope.server = jiraLiteServer.get();
+        $scope.queryTypes = [
+            {name:'JQL', value:'jql'},
+            {name:'Text', value:'text'},
+            {name:'IssueId', value:'issueId'}
+        ];
+        $scope.selectedQueryType = $scope.queryTypes[0];
+        $scope.issuesLoading = false;
+        $scope.issueQuery=null;
 
         $scope.$watch('issues', function (newValue, oldValue) {
             $scope.totalIssues = issues.length;
@@ -18,46 +29,60 @@ angular.module('mbockus.Jiralite')
             }
         }, true);
 
-        $scope.settings = function() {
-            var settingsBox = bootbox.prompt('Specify the JIRA server (e.g. https://jira.atlassian.com/):', function(result) {
-                if (result) {
-                    bootbox.hideAll();
-                    $scope.server = result;
-                    jiraLiteServer.put(result);
-                }
-            });
-            settingsBox.find('.modal-title').addClass('bootbox-title');
-            settingsBox.find('.bootbox-input').val($scope.server);
-        };
-
-        $scope.addIssue = function () {
-            var newIssue = $scope.newIssue.trim();
-            if (!newIssue.length) {
+        $scope.addIssue = function (issue) {
+            if (!issue) {
                 return;
             }
 
-            var newIssueDesc = $scope.newIssueDesc.trim();
-            if (!newIssueDesc.length) {
-                return;
+            if(!_.findWhere(issues, {id: issue.key})) {
+                issues.push({
+                    id: issue.key,
+                    desc: issue.fields.summary
+                });
+                toastr.success('Issue ' + issue.key + ' has been added!');
+            } else {
+                toastr.warning('Issue ' + issue.key + ' is already in your list.');
             }
-
-            issues.push({
-                id: newIssue,
-                desc: newIssueDesc
-            });
-
-            $scope.newIssue = '';
-            $scope.newIssueDesc = '';
         };
 
-        $scope.removeTodo = function (issue) {
+        $scope.removeIssue = function (issue) {
             issues.splice(issues.indexOf(issue), 1);
         };
 
-        if(jiraLiteServer.get() === '') {
-            $scope.settings();
-        }
+        $scope.logWork = function(issue) {
+            if(!issue) {
+                return;
+            }
 
+        };
+
+        $scope.searchIssues = function () {
+            $scope.issuesLoading = true;
+            $('#issueListModal').modal('show');
+            var query;
+            switch($scope.selectedQueryType.value) {
+                case 'jql':
+                    query =  $scope.issueQuery;
+                    break;
+                case 'text':
+                    query = 'text~' + $scope.issueQuery;
+                    break;
+                case 'issueId':
+                    query = 'key = ' + $scope.issueQuery;
+                    break;
+
+            }
+            var url = '/rest/api/2/search?jql=' + query + '&fields=key,summary';
+
+            $http.get(url).success(function(data) {
+                    $scope.issuesFound = data;
+                    $scope.issuesLoading = false;
+                }).error(function(data,status,headers,config) {
+                    $scope.issuesLoading = false;
+                    toastr.error('Failed to search for issues.');
+                });
+
+        };
     })
     .factory('jiraLiteStorage', function () {
         var STORAGE_ID = 'jiraLiteIssues';
@@ -68,20 +93,8 @@ angular.module('mbockus.Jiralite')
             },
 
             put: function (issues) {
-                localStorage.setItem(STORAGE_ID, JSON.stringify(issues));
-            }
-        };
-    })
-    .factory('jiraLiteServer',  function () {
-        var STORAGE_ID = 'jiraLiteServer';
-
-        return {
-            get: function () {
-                return localStorage.getItem(STORAGE_ID) || '';
-            },
-
-            put: function (jiraLiteServer) {
-                localStorage.setItem(STORAGE_ID, jiraLiteServer);
+                localStorage.setItem(STORAGE_ID, JSON.stringify(issues, issueStoreReplacer));
             }
         };
     });
+

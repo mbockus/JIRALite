@@ -1,5 +1,71 @@
-<h1 class="cover-heading">Cover your page.</h1>
-<p class="lead">Cover is a one-page template for building simple and beautiful home pages. Download, edit the text, and add your own fullscreen background photo to make it your own.</p>
-<p class="lead">
-  <a href="#" class="btn btn-lg btn-default">Learn more</a>
+<h3 class="cover-heading">Add Issues</h3>
+<form class="form-inline" role="form">
+    <div class="form-group">
+        <label class="sr-only">Query Type</label>
+        <select class="form-control" ng-model="selectedQueryType" ng-options="query.name for query in queryTypes"></select>
+    </div>
+    <div class="form-group">
+        <label class="sr-only">Query</label>
+        <input ng-model="issueQuery" ng-model-instant type="text" class="form-control" placeholder="Search...">
+    </div>
+    <button ng-click="searchIssues()" class="btn btn-default">Search</button><i class='icon-spinner icon-spin icon-large'></i>
+</form>
+<div style="padding-top: 10px"  ng-show="issues.length > 0">
+    <h1 class="cover-heading">Log Work</h1>
+    <table class="table table-bordered table-condensed">
+        <thead>
+        <th>Key</th>
+        <th>Description</th>
+        <th>Hours</th>
+        <th>Work Desc</th>
+        <th>Action</th>
+        </thead>
+        <tbody ng-repeat="issue in issues | orderBy:'id'">
+        <tr>
+            <td style="white-space:nowrap;">{{issue.id}}</td>
+            <td>{{issue.desc}}</td>
+            <td><input type="test" class="form-control" ng-model="issue.time"></td>
+            <td><input type="test" class="form-control" ng-model="issue.workDesc"></td>
+            <td style="white-space:nowrap;"><button type="button" ng-click="logWork(issue)" class="btn btn-sm btn-primary">Log</button> <button type="button" ng-click="removeIssue(issue)" class="btn btn-sm btn-danger">Delete</button></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="modal fade black" id="issueListModal" tabindex="-1" role="dialog" aria-labelledby="issueListModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title bootbox-title" id="issueListModalLabel">Issue Results</h4>
+            </div>
+            <div class="modal-body">
+                <img src="images/ajax-loader.gif" ng-show="issuesLoading"/>
+                <div ng-hide="issuesLoading">
+                    <p>
+                        Issues Found: {{issuesFound.total}}
+                    </p>
+                    <table class="table table-bordered table-hover table-condensed"
+                           ng-show="issuesFound.total > 0">
+                        <thead>
+                        <th>Add?</th>
+                        <th>Key</th>
+                        <th>Description</th>
+                        </thead>
+                        <tbody ng-repeat="issue in issuesFound.issues">
+                        <tr>
+                            <td><button type="button" ng-click="addIssue(issue)" class="btn btn-sm btn-primary">Add</button></td>
+                            <td>{{issue.key}}</td>
+                            <td>{{issue.fields.summary}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 </p>

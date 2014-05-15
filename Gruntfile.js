@@ -6,6 +6,7 @@
 // 'test/spec/{,*/}*.js'
 // use this if you want to recursively match all subfolders:
 // 'test/spec/**/*.js'
+var proxySnippet = require('grunt-connect-proxy/lib/utils').proxyRequest;
 
 module.exports = function(grunt) {
 
@@ -80,7 +81,26 @@ module.exports = function(grunt) {
           base: [
             '.tmp',
             '<%= yo.app %>'
-          ]
+          ],
+          middleware: function (connect, options) {
+                if (!Array.isArray(options.base)) {
+                    options.base = [options.base];
+                }
+
+                // Setup the proxy
+                var middlewares = [proxySnippet];
+
+                // Serve static files.
+                options.base.forEach(function(base) {
+                    middlewares.push(connect.static(base));
+                });
+
+                // Make directory browse-able.
+                var directory = options.directory || options.base[options.base.length - 1];
+                middlewares.push(connect.directory(directory));
+
+                return middlewares;
+            }
         }
       },
       test: {
@@ -97,7 +117,20 @@ module.exports = function(grunt) {
         options: {
           base: '<%= yo.dist %>'
         }
-      }
+      },
+      proxies: [
+        {
+            context: '/rest',
+            host: grunt.option('jiraServer'),
+            port: 80,
+            https: false,
+            changeOrigin: true,
+            xforward: false,
+            headers: {
+                'Cookie': grunt.option('authCookie')
+            }
+        }
+        ]
     },
 
     // Make sure code styles are up to par and there are no obvious mistakes
@@ -323,6 +356,7 @@ module.exports = function(grunt) {
       'bowerInstall',
       'concurrent:server',
       'autoprefixer',
+      'configureProxies',
       'connect:livereload',
       'watch'
     ]);

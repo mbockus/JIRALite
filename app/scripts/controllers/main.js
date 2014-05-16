@@ -9,18 +9,19 @@ var issueStoreReplacer = function(key, value) {
 
 angular.module('mbockus.Jiralite')
 
-    .controller('JiraLiteCtrl', function JiraLiteCtrl($scope, $location, $routeParams, $filter, $http, jiraLiteStorage) {
+    .controller('JiraLiteCtrl', function JiraLiteCtrl($scope, $location, $routeParams, $filter, $http, jiraLiteStorage, jiraLiteServer) {
 
         var issues = $scope.issues = jiraLiteStorage.get();
+        $scope.server = jiraLiteServer.get();
 
         $scope.queryTypes = [
             {name:'JQL', value:'jql'},
             {name:'Text', value:'text'},
             {name:'IssueId', value:'issueId'}
         ];
+
         $scope.selectedQueryType = $scope.queryTypes[0];
         $scope.issuesLoading = false;
-        $scope.issueQuery=null;
 
         $scope.$watch('issues', function (newValue, oldValue) {
             $scope.totalIssues = issues.length;
@@ -28,6 +29,18 @@ angular.module('mbockus.Jiralite')
                 jiraLiteStorage.put(issues);
             }
         }, true);
+
+        $scope.settings = function() {
+            var settingsBox = bootbox.prompt('Specify the JIRA server (e.g. https://jira.atlassian.com/):', function(result) {
+                if (result) {
+                    bootbox.hideAll();
+                    $scope.server = result;
+                    jiraLiteServer.put(result);
+                }
+            });
+            settingsBox.find('.modal-title').addClass('bootbox-title');
+            settingsBox.find('.bootbox-input').val($scope.server);
+        };
 
         $scope.addIssue = function (issue) {
             if (!issue) {
@@ -53,6 +66,21 @@ angular.module('mbockus.Jiralite')
             if(!issue) {
                 return;
             }
+            if(!issue.time) {
+                toastr.error('Specify the time to log against that issue.')
+            }
+            var worklog = {comment: issue.workDesc, timeSpent: issue.time};
+            var jsonWorkLog = JSON.stringify(worklog);
+            var url = '/rest/api/2/issue/' + issue.id + '/worklog';
+            $http.post(url, jsonWorkLog).
+                success(function(data,status) {
+                    toastr.success('Logged work for ' + issue.id);
+                    issue.workDesc='';
+                    issue.time='';
+            }).
+                error(function(data,status) {
+                    toastr.error('Failed to log work for ' + issue.id);
+            });
 
         };
 
@@ -60,15 +88,15 @@ angular.module('mbockus.Jiralite')
             $scope.issuesLoading = true;
             $('#issueListModal').modal('show');
             var query;
-            switch($scope.selectedQueryType.value) {
+            switch(this.selectedQueryType.value) {
                 case 'jql':
-                    query =  $scope.issueQuery;
+                    query =  this.issueQuery;
                     break;
                 case 'text':
-                    query = 'text~' + $scope.issueQuery;
+                    query = 'text~' + this.issueQuery;
                     break;
                 case 'issueId':
-                    query = 'key = ' + $scope.issueQuery;
+                    query = 'key = ' + this.issueQuery;
                     break;
 
             }
@@ -94,6 +122,19 @@ angular.module('mbockus.Jiralite')
 
             put: function (issues) {
                 localStorage.setItem(STORAGE_ID, JSON.stringify(issues, issueStoreReplacer));
+            }
+        };
+    })
+    .factory('jiraLiteServer',  function () {
+        var STORAGE_ID = 'jiraLiteServer';
+
+        return {
+            get: function () {
+                return localStorage.getItem(STORAGE_ID) || '';
+            },
+
+            put: function (jiraLiteServer) {
+                localStorage.setItem(STORAGE_ID, jiraLiteServer);
             }
         };
     });

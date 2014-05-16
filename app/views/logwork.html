@@ -1,5 +1,5 @@
 <h3 class="cover-heading">Add Issues</h3>
-<form class="form-inline" role="form">
+<form name="issuesearchform" class="form-inline" role="form">
     <div class="form-group">
         <label class="sr-only">Query Type</label>
         <select class="form-control" ng-model="selectedQueryType" ng-options="query.name for query in queryTypes"></select>
@@ -16,13 +16,13 @@
         <thead>
         <th>Key</th>
         <th>Description</th>
-        <th>Hours</th>
+        <th>Time</th>
         <th>Work Desc</th>
         <th>Action</th>
         </thead>
         <tbody ng-repeat="issue in issues | orderBy:'id'">
         <tr>
-            <td style="white-space:nowrap;">{{issue.id}}</td>
+            <td style="white-space:nowrap;"><a target="_blank" href="{{server}}/browse/{{issue.id}}">{{issue.id}}</a></td>
             <td>{{issue.desc}}</td>
             <td><input type="test" class="form-control" ng-model="issue.time"></td>
             <td><input type="test" class="form-control" ng-model="issue.workDesc"></td>

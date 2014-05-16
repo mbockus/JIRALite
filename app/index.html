@@ -45,7 +45,30 @@
 </head>
 
 <body ontouchstart ng-controller="JiraLiteCtrl">
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#jiralite-navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">JIRA Lite</a>
+        </div>
 
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="jiralite-navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#">Log Work</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a ng-click="settings()"><span class="glyphicon glyphicon-cog"></span></a></li>
+            </ul>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
         <div style="margin:15px" ng-view>
         </div>
 

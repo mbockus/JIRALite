@@ -67,7 +67,7 @@ angular.module('mbockus.Jiralite')
                 return;
             }
             if(!issue.time) {
-                toastr.error('Specify the time to log against that issue.')
+                toastr.error('Specify the time to log against that issue.');
             }
             var worklog = {comment: issue.workDesc, timeSpent: issue.time};
             var jsonWorkLog = JSON.stringify(worklog);

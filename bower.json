@@ -29,6 +29,7 @@
     "angular-route": "^1.3.0-beta.8",
     "angular": "^1.3.0-beta.8",
     "underscore": "1.6.0",
-    "toastr": "2.0.2"
+    "toastr": "2.0.2",
+    "angular-bootstrap-datetimepicker": "*"
   }
 }

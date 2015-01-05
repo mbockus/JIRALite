@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('mbockus.Jiralite', ['ngAnimate', 'ngRoute'])
+angular.module('mbockus.Jiralite', ['ngAnimate', 'ngRoute','ui.bootstrap.datetimepicker'])
 
   .constant('version', 'v0.1.0')
 

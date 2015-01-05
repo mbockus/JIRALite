@@ -70,6 +70,9 @@ angular.module('mbockus.Jiralite')
                 toastr.error('Specify the time to log against that issue.');
             }
             var worklog = {comment: issue.workDesc, timeSpent: issue.time};
+            if(issue.startTime) {
+                worklog.started = moment(issue.startTime).format('YYYY-MM-DDThh:mm:ss.SSSZZ');
+            }
             var jsonWorkLog = JSON.stringify(worklog);
             var url = '/rest/api/2/issue/' + issue.id + '/worklog';
             $http.post(url, jsonWorkLog).
@@ -77,6 +80,7 @@ angular.module('mbockus.Jiralite')
                     toastr.success('Logged work for ' + issue.id);
                     issue.workDesc='';
                     issue.time='';
+                    issue.startTime='';
             }).
                 error(function(data,status) {
                     toastr.error('Failed to log work for ' + issue.id);
